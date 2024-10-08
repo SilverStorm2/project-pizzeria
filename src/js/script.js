@@ -59,6 +59,7 @@ const select = {
       thisProduct.data = data;
 
       thisProduct.renderInMenu();
+      thisProduct.getElements();
       console.log('new Product:', thisProduct);
     }
 
@@ -77,6 +78,28 @@ const select = {
       /** add lement to menu */
       menuContainer.appendChild(thisProduct.elment);
 
+    }
+
+    getElements(){
+      const thisProduct = this;
+
+      thisProduct.accordionTrigger = thisProduct.elment.querySelector(select.menuProduct.clickable);
+      thisProduct.form = thisProduct.elment.querySelector(select.menuProduct.form);
+      thisProduct.formInputs = thisProduct.form.querySelectorAll(select.all.formInputs);
+      thisProduct.cartButton = thisProduct.elment.querySelector(select.menuProduct.cartButton);
+      thisProduct.priceElem = thisProduct.elment.querySelector(select.menuProduct.priceElem);
+
+      thisProduct.accordionTrigger.addEventListener('click', function(event){
+        event.preventDefault();
+
+        const activeProduct = document.querySelector(select.all.menuProductsActive);
+
+        if(activeProduct && activeProduct != thisProduct.elment){
+          activeProduct.classList.remove(classNames.menuProduct.wrapperActive);
+        }
+
+        thisProduct.elment.classList.toggle(classNames.menuProduct.wrapperActive);
+      });
     }
   }
 
