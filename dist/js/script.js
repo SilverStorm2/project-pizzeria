@@ -53,10 +53,30 @@ const select = {
   };
 
   class Product{
-    constructor(){
+    constructor(id, data){
+      const thisProduct = this;
+      thisProduct.id = id;
+      thisProduct.data = data;
+
+      thisProduct.renderInMenu();
+      console.log('new Product:', thisProduct);
+    }
+
+    renderInMenu(){
       const thisProduct = this;
 
-      console.log('new Product:', thisProduct);
+      /** generate HTML based on template */
+      const generatedHTML = templates.menuProduct(thisProduct.data);
+
+      /** create element using utils.createElementFromHTML */
+      thisProduct.elment = utils.createDOMFromHTML(generatedHTML);
+
+      /** find menu container */
+      const menuContainer = document.querySelector(select.containerOf.menu);
+
+      /** add lement to menu */
+      menuContainer.appendChild(thisProduct.elment);
+
     }
   }
 
