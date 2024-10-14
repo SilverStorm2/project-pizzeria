@@ -87,11 +87,19 @@ const select = {
     getElements(){
       const thisProduct = this;
 
-      thisProduct.accordionTrigger = thisProduct.elment.querySelector(select.menuProduct.clickable);
-      thisProduct.form = thisProduct.elment.querySelector(select.menuProduct.form);
-      thisProduct.formInputs = thisProduct.form.querySelectorAll(select.all.formInputs);
-      thisProduct.cartButton = thisProduct.elment.querySelector(select.menuProduct.cartButton);
-      thisProduct.priceElem = thisProduct.elment.querySelector(select.menuProduct.priceElem);
+      thisProduct.accordionTrigger = thisProduct.elment.querySelector(
+        select.menuProduct.clickable);
+      thisProduct.form = thisProduct.elment.querySelector(
+        select.menuProduct.form);
+      thisProduct.formInputs = thisProduct.form.querySelectorAll(
+        select.all.formInputs);
+      thisProduct.cartButton = thisProduct.elment.querySelector(
+        select.menuProduct.cartButton);
+      thisProduct.priceElem = thisProduct.elment.querySelector(
+        select.menuProduct.priceElem);
+      thisProduct.imageWrapper = thisProduct.elment.querySelector(
+        select.menuProduct.imageWrapper
+      );  
     }
 
     initAccordion() {
@@ -148,12 +156,13 @@ const select = {
         // determine param value, e.g. paramId = 'toppings', param = { label: 'Toppings', type: 'checkboxes'... }
         const param = thisProduct.data.params[paramId];
         console.log(paramId, param);
-  
+
         // for every option in this category
         for (let optionId in param.options) {
           // determine option value, e.g. optionId = 'olives', option = { label: 'Olives', price: 2, default: true }
           const option = param.options[optionId];
-          console.log(optionId, option);
+          //console.log(optionId, option);
+          const optionImage = thisProduct.imageWrapper.querySelector(`.${paramId}-${optionId}`);
   
           // Check if the option was selected by the user
           if (formData[paramId] && formData[paramId].includes(optionId)) {
@@ -162,22 +171,25 @@ const select = {
               // If it is not default, increase the price by the option's price
               price += option.price;
             }
+            if (optionImage) {
+              optionImage.classList.add(classNames.menuProduct.imageVisible);
+            }
           } else {
             // The option was not selected, but it might have been default
             if (option.default) {
               // If the option was default and got deselected, reduce the price
               price -= option.price;
             }
+            if (optionImage){
+              optionImage.classList.remove(classNames.menuProduct.imageVisible);
+            }
           }
         }
       }
-  
       // update calculated price in the HTML
       thisProduct.priceElem.innerHTML = price;
     }
   }
-
-
 
   const app = {
     initData: function(){
