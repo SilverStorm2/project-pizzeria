@@ -62,6 +62,7 @@ const select = {
       thisProduct.getElements();
       thisProduct.initAccordion();
       thisProduct.initOrderForm();
+      thisProduct.initAmountWidget();
       thisProduct.processOrder();
 
       console.log('new Product:', thisProduct);
@@ -74,32 +75,34 @@ const select = {
       const generatedHTML = templates.menuProduct(thisProduct.data);
 
       /** create element using utils.createElementFromHTML */
-      thisProduct.elment = utils.createDOMFromHTML(generatedHTML);
+      thisProduct.element = utils.createDOMFromHTML(generatedHTML);
 
       /** find menu container */
       const menuContainer = document.querySelector(select.containerOf.menu);
 
       /** add lement to menu */
-      menuContainer.appendChild(thisProduct.elment);
+      menuContainer.appendChild(thisProduct.element);
 
     }
 
     getElements(){
       const thisProduct = this;
 
-      thisProduct.accordionTrigger = thisProduct.elment.querySelector(
+      thisProduct.accordionTrigger = thisProduct.element.querySelector(
         select.menuProduct.clickable);
-      thisProduct.form = thisProduct.elment.querySelector(
+      thisProduct.form = thisProduct.element.querySelector(
         select.menuProduct.form);
       thisProduct.formInputs = thisProduct.form.querySelectorAll(
         select.all.formInputs);
-      thisProduct.cartButton = thisProduct.elment.querySelector(
+      thisProduct.cartButton = thisProduct.element.querySelector(
         select.menuProduct.cartButton);
-      thisProduct.priceElem = thisProduct.elment.querySelector(
+      thisProduct.priceElem = thisProduct.element.querySelector(
         select.menuProduct.priceElem);
-      thisProduct.imageWrapper = thisProduct.elment.querySelector(
-        select.menuProduct.imageWrapper
-      );  
+      thisProduct.imageWrapper = thisProduct.element.querySelector(
+        select.menuProduct.imageWrapper);
+        //nowy 
+      thisProduct.amountWidgetElem = thisProduct.element.querySelector(
+        select.menuProduct.amountWidget);
     }
 
     initAccordion() {
@@ -189,6 +192,65 @@ const select = {
       // update calculated price in the HTML
       thisProduct.priceElem.innerHTML = price;
     }
+    //nowy
+    initAmountWidget(){
+      const thisProduct = this;
+
+      thisProduct.amountWidget = new AmountWidget(thisProduct.amountWidgetElem);
+    }
+  }
+
+  //nowy
+  class AmountWidget {
+    constructor(element) {
+      const thisWidget = this;
+
+      thisWidget.getElements(element);
+      thisWidget.setValue(thisWidget.input.value);
+      thisWidget.initActions();
+    }
+
+    getElements(element){
+      const thisWidget = this;
+
+      thisWidget.element = element;
+      thisWidget.input = thisWidget.element.querySelector(
+        select.widgets.amount.input);
+      thisWidget.linkDecrease = thisWidget.element.querySelector(
+        select.widgets.amount.linkDecrease);
+      thisWidget.linkIncrease = thisWidget.element.querySelector(
+        select.widgets.amount.linkIncrease);   
+    }
+    setValue(value){
+      const thisWidget = this;
+      const newValue = parseInt(value);
+
+      /* TODO: Add validation*/
+      if (thisWidget.value !== newValue && 
+        !isNaN(newValue) &&
+        newValue >= settings.amountWidget.defaultMin &&
+        newValue <= settings.amountWidget.defaultMax) {
+        thisWidget.value = newValue;
+      }
+      thisWidget.input.value = thisWidget.value;
+    }
+
+    initActions(){
+      const thisWidget = this;
+
+      thisWidget.input.addEventListener('change', function () {
+        thisWidget.setValue(thisWidget.input.value);
+      })
+      thisWidget.linkDecrease.addEventListener('click', function (event) {
+        event.preventDefault();
+        thisWidget.setValue(thisWidget.value - 1);
+      });
+  
+      thisWidget.linkIncrease.addEventListener('click', function (event) {
+        event.preventDefault();
+        thisWidget.setValue(thisWidget.value + 1);
+      });
+    }
   }
 
   const app = {
@@ -200,8 +262,6 @@ const select = {
     },
 
     initMenu: function(){
-      //const testProduct = new Product();
-      //console.log('testProduct:', testProduct);
       const thisApp = this;
 
       for(let productData in thisApp.data.products){
