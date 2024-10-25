@@ -3,7 +3,13 @@ version 2.4
 # Project Pizzeria
 
 ## Overview
-Project Pizzeria is an interactive web application that allows users to create their own pizza by selecting ingredients like toppings, sauces, and crusts. The app dynamically updates the total price based on user selections and offers a seamless ordering experience. The project demonstrates the use of JavaScript, DOM manipulation, event handling, and templating.
+Project Pizzeria is an interactive web application that allows users to create their own pizza by selecting ingredients such as toppings, sauces, and crusts. The app dynamically updates the total price based on user selections and offers a seamless ordering experience. This project demonstrates:
+- JavaScript Implementation: Leveraging JS for dynamic functionality.
+- DOM Manipulation: Real-time updates based on user actions.
+- Event Handling: Responsive user interactions like adding/removing ingredients.
+- Templating with Handlebars: Generating HTML templates dynamically.
+- Data Integration: Managing and storing order information efficiently.
+- Responsive Design: Optimized for both mobile and desktop users
 
 ## Features
 - **Dynamic Pizza Customization**: Users can choose different sauces, toppings, and crusts for their pizza.
