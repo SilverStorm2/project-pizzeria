@@ -189,6 +189,7 @@ const select = {
           }
         }
       }
+      price *= thisProduct.amountWidget.value;
       // update calculated price in the HTML
       thisProduct.priceElem.innerHTML = price;
     }
@@ -197,6 +198,10 @@ const select = {
       const thisProduct = this;
 
       thisProduct.amountWidget = new AmountWidget(thisProduct.amountWidgetElem);
+
+      thisProduct.amountWidgetElem.addEventListener('updated', function(){
+        thisProduct.processOrder();
+      })
     }
   }
 
@@ -206,7 +211,11 @@ const select = {
       const thisWidget = this;
 
       thisWidget.getElements(element);
-      thisWidget.setValue(thisWidget.input.value);
+      /** Listen for the 'updated' event on the amountWidget element */
+      //thisWidget.setValue(thisWidget.input.value);
+      const initialValue = thisWidget.input.value ? thisWidget.input.value : settings.amountWidget.defaultValue;
+      thisWidget.setValue(initialValue);
+      /** Call processOrder when the event is triggered */
       thisWidget.initActions();
     }
 
@@ -230,7 +239,11 @@ const select = {
         !isNaN(newValue) &&
         newValue >= settings.amountWidget.defaultMin &&
         newValue <= settings.amountWidget.defaultMax) {
+        /* If the new value is different from the current one, within the allowed range, and is a valid number,
+         update the widget's value and the input field with the new value. */  
         thisWidget.value = newValue;
+        thisWidget.input.value = thisWidget.value;
+        thisWidget.announce();
       }
       thisWidget.input.value = thisWidget.value;
     }
@@ -250,6 +263,13 @@ const select = {
         event.preventDefault();
         thisWidget.setValue(thisWidget.value + 1);
       });
+    }
+
+    announce(){
+      const thisWidget = this;
+
+      const event = new Event('updated');
+      thisWidget.element.dispatchEvent(event);
     }
   }
 
