@@ -305,7 +305,6 @@ const select = {
       thisWidget.element.dispatchEvent(event);
     }
   }
-
   class Cart{
     constructor(element){
       const thisCart = this;
@@ -330,14 +329,12 @@ const select = {
       });
     }
   }
-
   const app = {
     initData: function(){
       const thisApp = this;
       console.log('thisApp.data:', thisApp.data);
       thisApp.data = dataSource;
     },
-
     initMenu: function(){
       const thisApp = this;
 
