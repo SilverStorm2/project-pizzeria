@@ -342,7 +342,6 @@ const select = {
         new Product(productData, thisApp.data.products[productData]);
       }
     },
-
     init: function(){
       const thisApp = this;
       console.log('*** App starting ***');
