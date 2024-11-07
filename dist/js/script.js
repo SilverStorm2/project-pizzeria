@@ -1,5 +1,7 @@
 /* global Handlebars, utils, dataSource */ // eslint-disable-line no-unused-vars
 
+//const { name } = require("browser-sync");
+
 {
   'use strict';
 
@@ -175,7 +177,16 @@ const select = {
       thisProduct.cartButton.addEventListener('click', function(event){
         event.preventDefault();
         thisProduct.processOrder();
+        thisProduct.addToCart(); //nowy
       });
+    }
+
+    //nowy
+    addToCart(){
+      const thisProduct = this;
+
+      const productSummary = thisProduct.prepareCartProduct();
+      app.cart.add(productSummary);
     }
 
     processOrder() {
@@ -227,7 +238,7 @@ const select = {
       // update calculated price in the HTML
       thisProduct.priceElem.innerHTML = price;
     }
-    //nowy
+    
     initAmountWidget(){
       const thisProduct = this;
 
@@ -237,9 +248,23 @@ const select = {
         thisProduct.processOrder();
       })
     }
+    
+    prepareCartProduct (){
+      const thisProduct = this;
+
+      const productSummary = {
+        id: thisProduct.id,
+        name: thisProduct.data.name,
+        amount: thisProduct.amountWidget.value,
+        priceSingle: thisProduct.data.price,
+        price: thisProduct.amountWidget.value * thisProduct.data.price,
+        params: {}
+      };
+      return productSummary;
+    }
   }
 
-  //nowy
+  
   class AmountWidget {
     constructor(element) {
       const thisWidget = this;
@@ -251,7 +276,7 @@ const select = {
       /** Call processOrder when the event is triggered */
       thisWidget.initActions();
     }
-
+    
     getElements(element){
       const thisWidget = this;
 
@@ -263,6 +288,7 @@ const select = {
       thisWidget.linkIncrease = thisWidget.element.querySelector(
         select.widgets.amount.linkIncrease);   
     }
+
     setValue(value){
       const thisWidget = this;
       const newValue = parseInt(value);
@@ -320,6 +346,9 @@ const select = {
       thisCart.dom.wrapper = element;
       thisCart.dom.toggleTrigger = thisCart.dom.wrapper.querySelector(
         select.cart.toggleTrigger);
+      thisCart.dom.productList = thisCart.dom.wrapper.querySelector(
+      select.cart.productList
+      );  
     }
     initActions(){
       const thisCart = this;
@@ -327,6 +356,14 @@ const select = {
       thisCart.dom.toggleTrigger.addEventListener('click', function(){
         thisCart.dom.wrapper.classList.toggle(classNames.cart.wrapperActive);
       });
+    }
+    //nowe
+    add(menuProduct){
+      const thisCart = this;
+      const generatedHTML = templates.cartProduct(menuProduct);
+      const generatedDOM = utils.createDOMFromHTML(generatedHTML);
+      thisCart.dom.productList.appendChild(generatedDOM);
+      thisCart.products.push(menuProduct)
     }
   }
   const app = {
