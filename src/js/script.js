@@ -405,6 +405,7 @@ const select = {
 
       thisCartProduct.getElements(element);
       thisCartProduct.initAmountWidget();
+      thisCartProduct.initActions(); // Initialize actions for edit and remove
     }
 
     /** Store references to key DOM elements within the cart item
@@ -443,6 +444,37 @@ const select = {
         thisCartProduct.dom.price.innerHTML = thisCartProduct.price;
       });
     }
+    initActions(){
+      const thisCartProduct = this;
+  
+      // Listener for the remove button
+      thisCartProduct.dom.remove.addEventListener('click', function(event) {
+        event.preventDefault();
+        thisCartProduct.removeFromCart();
+      });
+  
+      // Optionally add functionality for the edit button if needed
+      thisCartProduct.dom.edit.addEventListener('click', function(event) {
+        event.preventDefault();
+        console.log('Edit button clicked');
+      });
+    }
+    removeFromCart() {
+      const thisCartProduct = this;
+  
+      // Remove the DOM element of this cart product
+      thisCartProduct.dom.wrapper.remove();
+  
+      // Find and remove the product from the cart's product list
+      const index = app.cart.products.indexOf(thisCartProduct);
+      if (index !== -1) {
+        app.cart.products.splice(index, 1);
+      }
+  
+      // Update the cart totals after removing the product
+      app.cart.update();
+    }
+
   }
 
   const app = {
