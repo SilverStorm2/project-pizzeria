@@ -254,7 +254,8 @@ const select = {
         name: thisProduct.data.name,
         amount: thisProduct.amountWidget.value,
         priceSingle: thisProduct.data.price,
-        price: thisProduct.amountWidget.value * thisProduct.data.price,// Elem
+        //price: thisProduct.amountWidget.value * thisProduct.data.price,
+        price: parseFloat(thisProduct.priceElem.innerHTML),
         params: thisProduct.prepareCartProductParams()
       };
       return productSummary;
@@ -345,7 +346,9 @@ const select = {
     announce(){
       const thisWidget = this;
 
-      const event = new Event('updated');
+      const event = new CustomEvent('updated', {
+        bubbles: true
+      });
       thisWidget.element.dispatchEvent(event);
     }
   }
@@ -362,17 +365,23 @@ const select = {
       const thisCart = this;
       thisCart.dom = {};
       thisCart.dom.wrapper = element;
-      thisCart.dom.toggleTrigger = thisCart.dom.wrapper.querySelector(
-        select.cart.toggleTrigger);
-      thisCart.dom.productList = thisCart.dom.wrapper.querySelector(
-      select.cart.productList
-      );  
+      thisCart.dom.toggleTrigger = thisCart.dom.wrapper.querySelector(select.cart.toggleTrigger);
+      thisCart.dom.productList = thisCart.dom.wrapper.querySelector(select.cart.productList);
+      /** new elements for displaying totals */
+      thisCart.dom.totalNumber = thisCart.dom.wrapper.querySelector(select.cart.totalNumber);
+      thisCart.dom.subtotalPrice = thisCart.dom.wrapper.querySelector(select.cart.subtotalPrice);
+      thisCart.dom.deliveryFee = thisCart.dom.wrapper.querySelector(select.cart.deliveryFee);
+      thisCart.dom.totalPrice = thisCart.dom.wrapper.querySelectorAll(select.cart.totalPrice);
     }
     initActions(){
       const thisCart = this;
       //thisCart = this;
       thisCart.dom.toggleTrigger.addEventListener('click', function(){
         thisCart.dom.wrapper.classList.toggle(classNames.cart.wrapperActive);
+      });
+      /** */
+      thisCart.dom.productList.addEventListener('updated', () => {
+        thisCart.update();
       });
     }
     
@@ -401,8 +410,8 @@ const select = {
      * log values for verification
      */
     update(){
+    
       const thisCart = this;
-
       const deliveryFee = settings.cart.defaultDeliveryFee;
       let totalNumber = 0;
       let subtotalPrice = 0;
@@ -414,11 +423,22 @@ const select = {
 
       thisCart.totalPrice = totalNumber > 0 ? subtotalPrice + deliveryFee : 0;
 
+      /**   console.log()
       console.log('Delivery fee:',deliveryFee);
       console.log('Total number:',totalNumber);
       console.log('Subtotal price:',subtotalPrice);
       console.log('Total price:',thisCart.totalPrice);
-      
+      */
+      thisCart.dom.totalNumber.innerHTML = totalNumber;
+      thisCart.dom.subtotalPrice.innerHTML = subtotalPrice;
+      thisCart.dom.deliveryFee.innerHTML = totalNumber > 0 ? deliveryFee : 0;
+      if (Array.isArray(thisCart.dom.totalPrice) || thisCart.dom.totalPrice instanceof NodeList){
+        for (let totalElem of thisCart.dom.totalPrice){
+          totalElem.innerHTML = thisCart.totalPrice;
+        }
+      } else{
+        thisCart.dom.totalPrice.innerHTML = thisCart.totalPrice;
+      }
     } 
   }
 
@@ -478,13 +498,13 @@ const select = {
       const thisCartProduct = this;
   
       // Listener for the remove button
-      thisCartProduct.dom.remove.addEventListener('click', function(event) {
+      thisCartProduct.dom.remove.addEventListener('click', (event) => {
         event.preventDefault();
         thisCartProduct.removeFromCart();
       });
   
       // Optionally add functionality for the edit button if needed
-      thisCartProduct.dom.edit.addEventListener('click', function(event) {
+      thisCartProduct.dom.edit.addEventListener('click', (event)  => {
         event.preventDefault();
         //console.log('Edit button clicked');
       });
