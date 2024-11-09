@@ -101,7 +101,7 @@ const select = {
       thisProduct.initAmountWidget();
       thisProduct.processOrder();
 
-      console.log('new Product:', thisProduct);
+      //console.log('new Product:', thisProduct);
     }
 
     renderInMenu(){
@@ -161,7 +161,7 @@ const select = {
 
     initOrderForm(){
       const thisProduct = this;
-      console.log(thisProduct);
+      //console.log(thisProduct);
 
       thisProduct.form.addEventListener('submit', function(event){
         event.preventDefault();
@@ -194,7 +194,7 @@ const select = {
   
       // convert form to object structure e.g. { sauce: ['tomato'], toppings: ['olives', 'redPeppers']}
       const formData = utils.serializeFormToObject(thisProduct.form);
-      console.log('formData', formData);
+      //console.log('formData', formData);
   
       // set price to default price
       let price = thisProduct.data.price;
@@ -203,7 +203,7 @@ const select = {
       for (let paramId in thisProduct.data.params) {
         // determine param value, e.g. paramId = 'toppings', param = { label: 'Toppings', type: 'checkboxes'... }
         const param = thisProduct.data.params[paramId];
-        console.log(paramId, param);
+        //console.log(paramId, param);
 
         // for every option in this category
         for (let optionId in param.options) {
@@ -355,7 +355,7 @@ const select = {
       thisCart.products = [];
       thisCart.getElements(element);
       thisCart.initActions();
-      console.log('new Cart', thisCart)
+      //console.log('new Cart', thisCart)
     }
 
     getElements(element){
@@ -389,7 +389,37 @@ const select = {
       thisCart.dom.productList.appendChild(generatedDOM);
       const cartProduct = new CartProduct(menuProduct, generatedDOM);
       thisCart.products.push(cartProduct);
+
+      thisCart.update();
     }
+
+    /** method recalculates the totals each time a product is added to the cart
+     * set delivery fee from settings
+     * initialize total number and subtotal
+     * loop through products to calculate totals
+     * calculate total price including delivery fee if there are items
+     * log values for verification
+     */
+    update(){
+      const thisCart = this;
+
+      const deliveryFee = settings.cart.defaultDeliveryFee;
+      let totalNumber = 0;
+      let subtotalPrice = 0;
+ 
+      for (let product of thisCart.products){
+        totalNumber += product.amount;
+        subtotalPrice += product.price;
+      }
+
+      thisCart.totalPrice = totalNumber > 0 ? subtotalPrice + deliveryFee : 0;
+
+      console.log('Delivery fee:',deliveryFee);
+      console.log('Total number:',totalNumber);
+      console.log('Subtotal price:',subtotalPrice);
+      console.log('Total price:',thisCart.totalPrice);
+      
+    } 
   }
 
   class CartProduct {
@@ -456,7 +486,7 @@ const select = {
       // Optionally add functionality for the edit button if needed
       thisCartProduct.dom.edit.addEventListener('click', function(event) {
         event.preventDefault();
-        console.log('Edit button clicked');
+        //console.log('Edit button clicked');
       });
     }
     removeFromCart() {
@@ -480,7 +510,7 @@ const select = {
   const app = {
     initData: function(){
       const thisApp = this;
-      console.log('thisApp.data:', thisApp.data);
+      //console.log('thisApp.data:', thisApp.data);
       thisApp.data = dataSource;
     },
     initMenu: function(){
@@ -492,11 +522,11 @@ const select = {
     },
     init: function(){
       const thisApp = this;
-      console.log('*** App starting ***');
-      console.log('thisApp:', thisApp);
-      console.log('classNames:', classNames);
-      console.log('settings:', settings);
-      console.log('templates:', templates);
+      //console.log('*** App starting ***');
+      //console.log('thisApp:', thisApp);
+      //console.log('classNames:', classNames);
+      //console.log('settings:', settings);
+      //console.log('templates:', templates);
 
       thisApp.initData();
       thisApp.initMenu();
