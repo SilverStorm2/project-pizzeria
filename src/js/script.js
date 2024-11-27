@@ -103,7 +103,10 @@ const select = {
 
       //console.log('new Product:', thisProduct);
     }
-
+    /*
+    * Generates HTML for the product based on a template and the product's data, converts it to a DOM element, 
+    * locates the main menu container on the page, and appends the product element to the menu, displaying it on the page.
+    */
     renderInMenu(){
       const thisProduct = this;
 
@@ -120,7 +123,16 @@ const select = {
       menuContainer.appendChild(thisProduct.element);
 
     }
-
+    /**
+     * Selects and stores key elements within the product component:
+     * - `accordionTrigger`: The element that triggers product accordion (toggle) behavior.
+     * - `form`: The form element for configuring product options.
+     * - `formInputs`: All input elements within the form for capturing user selections.
+     * - `cartButton`: Button that adds the product to the cart.
+     * - `priceElem`: Element displaying the product's total price.
+     * - `imageWrapper`: Wrapper for displaying product images.
+     * - `amountWidgetElem`: Element for adjusting product quantity.
+     */
     getElements(){
       const thisProduct = this;
 
@@ -140,25 +152,32 @@ const select = {
       thisProduct.amountWidgetElem = thisProduct.element.querySelector(
         select.menuProduct.amountWidget);
     }
-
+    /**
+     * `initAccordion` - Initializes accordion functionality for expanding and collapsing product details.
+     * Adds an event listener to the product header (`accordionTrigger`) that:
+     * - Prevents the default action of the click event.
+     * - Finds the currently active product and removes its 'active' class if it's not the clicked product.
+     * - Toggles the 'active' class on the clicked product, controlling the visibility of product details.
+     */
     initAccordion() {
       const thisProduct = this;
 
-      /* START: add event listener to clickable trigger on event click */
       thisProduct.accordionTrigger.addEventListener('click', function (event) {
-        /* prevent default action for event */
         event.preventDefault();
-        /* find active product (product that has active class) */
         const activeProduct = document.querySelector('.active');
-        /* if there is active product and it's not thisProduct.element, remove class active from it */
         if (activeProduct && activeProduct !== thisProduct.element) {
           activeProduct.classList.remove('active');
         }
-        /* toggle active class on thisProduct.element */
         thisProduct.element.classList.toggle('active');
       });
     } 
-
+    /**
+    * Initializes order form functionality by setting up event listeners:
+    * - Prevents form submission default behavior, calling `processOrder()` instead to calculate product configuration.
+    * - Adds `change` event listeners to each input in `formInputs`, recalculating order details when options change.
+    * - Sets up `click` event listener on `cartButton` to prevent default behavior, calls `processOrder()` to update total, 
+    *   and then invokes `addToCart()` to add the configured product to the cart.
+    */
     initOrderForm(){
       const thisProduct = this;
       //console.log(thisProduct);
@@ -180,15 +199,23 @@ const select = {
         thisProduct.addToCart(); //nowy
       });
     }
+    /**
+     * `initAmountWidget` - Initializes the amount widget for managing product quantity.
+     * - Creates a new `AmountWidget` instance associated with the product's amount widget element (`amountWidgetElem`).
+     * - Adds an event listener to `amountWidgetElem` that triggers `processOrder` each time the widget is updated,
+     *   ensuring the displayed price is updated based on the selected quantity.
+     */
     initAmountWidget() {
       const thisProduct = this;
-  
       thisProduct.amountWidget = new AmountWidget(thisProduct.amountWidgetElem);
       thisProduct.amountWidgetElem.addEventListener('updated', function() {
         thisProduct.processOrder();
       });
     }
-
+    /** 
+     * `processOrder` - Calculates and displays the updated product price based on selected options and quantity: 
+     * Converts form data to `formData` for selected option access, sets `price` to base price, iterates through each parameter category (e.g., toppings), adjusting the `price` based on selected or deselected options by adding or deducting non-default option prices; controls option image visibility by showing selected option images and hiding others; multiplies the final price by the quantity in the amount widget, then updates the product's HTML price element with the calculated total.
+     */
     processOrder() {
       const thisProduct = this;
   
@@ -238,14 +265,19 @@ const select = {
       // update calculated price in the HTML
       thisProduct.priceElem.innerHTML = price;
     }
-    //nowy
+    /** 
+     * `addToCart` - Prepares product data for the cart and adds it:
+     * Uses `prepareCartProduct` to compile product details (like ID, name, amount, price, and selected options) into `productSummary`, then adds this summary to the cart by calling `app.cart.add`.
+     */
     addToCart(){
       const thisProduct = this;
-
       const productSummary = thisProduct.prepareCartProduct();
       app.cart.add(productSummary);
     }
-   
+    /** 
+     * `prepareCartProduct` - Compiles and returns a summary of the selected product details:
+     * Gathers product-specific data including the product ID, name, selected amount, individual price, and calculated total price. It also fetches any selected options using `prepareCartProductParams` for inclusion in `productSummary`. Finally, `productSummary` is returned to represent the product's current configuration for cart addition.
+     */
     prepareCartProduct (){
       const thisProduct = this;
 
@@ -260,7 +292,12 @@ const select = {
       };
       return productSummary;
     }
-
+    /**
+     * `prepareCartProductParams` - Assembles the selected options for the product:
+     * Converts form data into a structured object, `formData`, representing selected choices. For each product parameter (`paramId`), it creates an entry in `params` with the parameter's label and an empty `options` object.
+     * It then iterates over each option, checking if the option is selected by the user. If selected, the option's label is added to `params` under the relevant parameter.
+     * This structured `params` object, containing all selected options with labels, is returned to summarize the chosen configuration for the cart.
+     */
     prepareCartProductParams(){
       const thisProduct = this;
       const formData = utils.serializeFormToObject(thisProduct.form);
@@ -283,7 +320,14 @@ const select = {
     }
   }
 
-  
+  /**
+     * `AmountWidget` class - Manages quantity selection for a product:
+     * - The constructor accepts a DOM `element` and initializes the widget.
+     * - Calls `getElements` to select and store relevant input elements.
+     * - Sets the initial value based on `input.value` if provided, or falls back to `settings.amountWidget.defaultValue`.
+     * - Uses `setValue` to ensure the initial quantity is correctly set.
+     * - Calls `initActions` to attach event listeners, enabling real-time quantity adjustments and updates.
+     */
   class AmountWidget {
     constructor(element) {
       const thisWidget = this;
@@ -307,7 +351,13 @@ const select = {
       thisWidget.linkIncrease = thisWidget.element.querySelector(
         select.widgets.amount.linkIncrease);   
     }
-
+    /**
+     * `setValue(value)` - Validates and sets the new widget value:
+     * - Converts `value` to an integer (`newValue`) to ensure proper data type for comparison.
+     * - Checks if `newValue` is different from the current value, is a valid number, and falls within the allowed range (`defaultMin` to `defaultMax`).
+     * - If all conditions are met, updates both `thisWidget.value` and the input field with `newValue`.
+     * - Calls `announce()` to notify other components of the change, enabling any necessary updates.
+     */
     setValue(value){
       const thisWidget = this;
       const newValue = parseInt(value);
@@ -325,7 +375,13 @@ const select = {
       }
       // thisWidget.input.value = thisWidget.value; zmiana
     }
-
+    /**
+     * `initActions()` - Sets up event listeners for user interactions on the widget:
+     * - Adds a `change` event listener to `thisWidget.input`, which updates the widget's value whenever the input field changes.
+     * - Adds a `click` event listener to `thisWidget.linkDecrease` that decreases the widget's value by 1, while preventing the default link behavior.
+     * - Adds a `click` event listener to `thisWidget.linkIncrease` that increases the widget's value by 1, while also preventing the default link behavior.
+     * - These interactions allow users to adjust the widget's value dynamically.
+     */
     initActions(){
       const thisWidget = this;
 
@@ -342,7 +398,12 @@ const select = {
         thisWidget.setValue(thisWidget.value + 1);
       });
     }
-
+    /**
+     * `announce()` - Triggers an 'updated' custom event on the widget's main element:
+     * - Creates a new `CustomEvent` named 'updated' with `bubbles` set to `true`, allowing the event to propagate up the DOM tree.
+     * - Dispatches this event on `thisWidget.element`, notifying any listeners that the widget's value has been updated.
+     * - This method allows other parts of the application to respond whenever the widget's value changes.
+     */
     announce(){
       const thisWidget = this;
 
@@ -402,12 +463,13 @@ const select = {
       thisCart.update();
     }
 
-    /** method recalculates the totals each time a product is added to the cart
-     * set delivery fee from settings
-     * initialize total number and subtotal
-     * loop through products to calculate totals
-     * calculate total price including delivery fee if there are items
-     * log values for verification
+    /**
+     * Recalculates cart totals whenever a product is added.
+     * - Sets delivery fee from settings.
+     * - Initializes `totalNumber` for item count and `subtotalPrice` for price sum.
+     * - Loops through products to update `totalNumber` and `subtotalPrice`.
+     * - Calculates `totalPrice` including delivery fee, if there are items in the cart.
+     * - Optionally logs values for debugging or verification.
      */
     update(){
     
@@ -458,7 +520,8 @@ const select = {
       thisCartProduct.initActions(); // Initialize actions for edit and remove
     }
 
-    /** Store references to key DOM elements within the cart item
+    /** 
+     * Store references to key DOM elements within the cart item
      * 
      * 
      */
@@ -481,8 +544,13 @@ const select = {
         select.cartProduct.remove
       );
     }
-
-    // initAmountWidget
+    /**
+     * Initializes the amount widget for the cart product.
+     * - Creates a new AmountWidget instance for quantity control.
+     * - Adds an event listener to update the product's amount and price
+     *   whenever the widget's value changes, ensuring the displayed price
+     *   reflects the current quantity.
+     */
     initAmountWidget(){
       const thisCartProduct = this;
 
@@ -494,6 +562,11 @@ const select = {
         thisCartProduct.dom.price.innerHTML = thisCartProduct.price;
       });
     }
+    /**
+     * Sets up actions for the cart product's buttons.
+     * - Adds an event listener to the remove button to trigger product removal from the cart.
+     * - Optionally sets up an edit button for potential future use.
+     */
     initActions(){
       const thisCartProduct = this;
   
@@ -509,6 +582,9 @@ const select = {
         //console.log('Edit button clicked');
       });
     }
+    /**
+     * Removes the product from the cart by deleting its DOM element, removing it from the cart's products array, and updating the cart totals to reflect the change.
+     */
     removeFromCart() {
       const thisCartProduct = this;
   
@@ -526,7 +602,23 @@ const select = {
     }
 
   }
-
+    /**
+     * `initData()` - Loads product data from a predefined data source:
+     * - Assigns the product data from `dataSource` to `thisApp.data` to make it accessible throughout the app.
+     *
+     * `initMenu()` - Renders each product on the menu:
+     * - Iterates over each product entry in `thisApp.data`.
+     * - For each product, creates a new `Product` instance to render and manage its specific details on the page.
+     *
+     * `init()` - Main initialization function for setting up the app:
+     * - Calls `initData()` to load product data.
+     * - Calls `initMenu()` to display menu items based on the loaded data.
+     * - Calls `initCart()` to prepare the cart functionality and interactions.
+     *
+     * `initCart()` - Sets up the shopping cart:
+     * - Finds the cart element in the DOM using the selector from `select.containerOf.cart`.
+     * - Creates a new `Cart` instance, which enables adding, removing, and updating items in the cart.
+     */
   const app = {
     initData: function(){
       const thisApp = this;
