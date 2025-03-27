@@ -1,6 +1,6 @@
 import app from '../app.js';
 import { select } from '../settings.js';
-import AmountWidget from './AmountWidget.js';
+import AmountWidget from '../components/AmountWidget.js';
 
 
 
